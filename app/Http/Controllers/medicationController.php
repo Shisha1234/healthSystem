@@ -35,13 +35,19 @@ class medicationController extends Controller
 
     public function details()
     {
+        $payment = DB::select("
+        SELECT payments.F_tions_drugId, register_pats.FullName, payments.payPatId, sum(payments.totalAmt) AS AMOUNT FROM `payments` 
+        JOIN register_pats ON register_pats.PatientId = payments.payPatId where payments.payStatus = 0 
+        GROUP BY payments.F_tions_drugId, payments.payPatId, register_pats.FullName
+        ");
+
         $pay = DB::table('payments')
             ->join('medicines', 'payments.paydrugId', '=', 'medicines.med_id')
             ->join('register_pats', 'payments.payPatId', '=', 'register_pats.PatientId')
             ->where('payStatus', '=', 0)
             ->get();
         return view('drugs.payments.details', compact([
-            'pay'
+            'pay', 'payment'
         ]));
     }
 
@@ -51,11 +57,25 @@ class medicationController extends Controller
 
      public function payment($paymentId)
      {
-         $payId = payment::find($paymentId);
-         $payment = DB::select("SELECT * FROM `payments` JOIN medicines JOIN register_pats JOIN medications ON payments.paydrugId = medicines.med_id AND payments.F_tions_drugId = medications.drugId AND payments.payPatId = register_pats.PatientId WHERE payments.paymentId = '$paymentId'");
+         //$payId = payment::find($paymentId);
+         $total = DB::table("payments")
+             ->where('payments.F_tions_drugId', '=', $paymentId)
+             ->sum('totalAmt');
+         $Fnm = DB::table("payments")
+             ->join('register_pats', 'payments.payPatId', '=', 'register_pats.PatientId')
+             ->where('payments.F_tions_drugId', '=', $paymentId)
+             ->value('FullName');
+         $payment = DB::select("
+        SELECT * FROM `payments` JOIN medicines JOIN register_pats 
+         JOIN medications ON payments.paydrugId = medicines.med_id 
+         AND payments.F_tions_drugId = medications.drugId
+         AND payments.payPatId = register_pats.PatientId WHERE payments.F_tions_drugId = '$paymentId'
+         ");
 
          return view('drugs.payments.payment')
-             ->with('payId', $payId)
+             ->with('paymentId', $paymentId)
+             ->with('total', $total)
+             ->with('Fnm', $Fnm)
              ->with('payment', $payment);
      }
 
@@ -179,19 +199,21 @@ class medicationController extends Controller
             $amount = $request->input('amt');
             $number = $request->input('num');
 
-            $pesapay = payment::find($paymentId);
+            /*$pesapay = payment::find($paymentId);
             $pesapay->payStatus = 1;
-            $pesapay->save();
+            $pesapay->save();*/
+            DB::update("UPDATE `payments` SET payStatus = 1,`updated_at`= now() WHERE `F_tions_drugId` ='$paymentId'");
             return view('drugs.payments.payscript', compact([
                 'amount', 'number'
             ]));
 
         }else{
-            $updatepay = payment::find($paymentId);
+            /*$updatepay = payment::find($paymentId);
             //$updatepay->totalAmt = $request->input('amt');
             $updatepay->payMode = 1;
             $updatepay->payStatus =1;
-            $updatepay->save();
+            $updatepay->save();*/
+            DB::update("UPDATE `payments` SET `payMode` = 1,`payStatus` = 1,`updated_at`= now() WHERE `F_tions_drugId` ='$paymentId'");
             return redirect('drugs/payments/details');
         }
     }
