@@ -12,6 +12,7 @@
                     <th>Name</th>
                     <th>National Id</th>
                     <th>Telephone</th>
+                    <th>Date</th>
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -21,6 +22,7 @@
                         <td>{{$item->FullName}}</td>
                         <td>{{$item->idNo}}</td>
                         <td>{{$item->Tel}}</td>
+                        <td>{{$item->updated_at}}</td>
                         <td>
                             <!--<img src="storage/icon/del.png" height="20px" width="20px">
                             <img src="storage/icon/edit.png" height="20px" width="20px">-->
@@ -33,7 +35,7 @@
                                 </button>
                                 {!!Form::close() !!}
 
-                                <a href="/regPat/{{$item->PatientId}}/edit" style="margin-left: 36%">
+                                <a href="/regPat/{{$item->PatientId}}/edit" style="margin-left: 14%">
                                     <img src="storage/icon/edit.png" height="20px" width="20px" onclick="return confirm('Edit Patient: {{ $item->FullName }}?')">
                                 </a>
                                 @if($item->treat_status == 0)

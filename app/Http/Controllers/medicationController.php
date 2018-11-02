@@ -23,13 +23,11 @@ class medicationController extends Controller
     {
         $date = date('Y-m-d');
         $drugs = DB::table('medications')
-            ->join('treatments', 'medications.drugPatId', '=', 'treatments.TreatPatId')
-            ->join('register_pats', 'register_pats.PatientId', '=', 'treatments.TreatPatId')
-            ->join('labtests', 'labtests.testId', '=', 'treatments.Test_description')
+            ->join('treatments', 'medications.med_treatId', '=', 'treatments.treatmentId')
+            ->join('register_pats', 'register_pats.PatientId', '=', 'medications.drugPatId')
             ->where([
                 ['medications.med_drugId', '=', NULL],
                 ['medications.presd_quant', '=', NULL],
-                ['treatments.updated_at', '>', $date],
             ])
             ->get();
         return view('drugs.index')->with('drugs', $drugs);
@@ -85,8 +83,8 @@ class medicationController extends Controller
         ]);
         //getting patient Id
         //$patId = $request->session()->get($drugId);
-        $drugName= $request->input('drug_name');
-        $drug_id = DB::table('Medicines')->where('med_name', '=', $drugName)->value('med_id')->get() ;
+        //$drugName= $request->input('drug_name');
+        //$drug_id = DB::table('Medicines')->where('med_name', '=', $drugName)->value('med_id')->get() ;
 
         //saving data in table
         $add_drug = new Medication();
@@ -121,11 +119,42 @@ class medicationController extends Controller
     {
         $edit_drug = Medication::find($drugId);
         $drug = DB::table('medications')
-            ->join('treatments', 'medications.drugPatId', '=', 'treatments.TreatPatId')
+            ->join('treatments', 'medications.med_treatId', '=', 'treatments.treatmentId')
             ->where('medications.drugId', '=', $drugId)
             ->value('treatments.m_prescription');
+        $dquant = DB::table('medications')
+            ->join('treatments', 'medications.med_treatId', '=', 'treatments.treatmentId')
+            ->where('medications.drugId', '=', $drugId)
+            ->value('treatments.treatmedquant');
+        $med_drugId = DB::table('medications')
+            ->where('drugId', '=', $drugId)
+            ->value('med_drugId');
+
+        $drquant = explode(",",$dquant );
+        $user = auth()->user()->id;
+        $med = DB::select("SELECT * FROM `medicines` WHERE med_id IN ($drug)");
+        foreach ($med as $medo){
+            $cine[] = $medo->med_name;
+            $cineId[] = $medo->med_id;
+        }
+        $combine = array_combine($drquant, $cine);
+        if ($med_drugId === NULL) {
+        $combine2 = array_combine($drquant, $cineId);
+        //$comIdquan = array_combine();
+        //$q = DB::select("SELECT `quantity` FROM `medicines` WHERE `med_name` = '$val'");
+            foreach ($combine2 as $key => $val) {
+                DB::insert("INSERT INTO `medrecords`(`medNmId`, `dempId`, `quant`, `date`, `recMedId`) VALUES ('$val', '$user', '$key', now(), '$drugId')");
+                $q = DB::table('medicines')->where('med_id', '=', $val)
+                    ->value('quantity');
+                $calquan = $q - $key;
+                DB::update("UPDATE `medicines` SET `quantity`='$calquan' WHERE `med_id` ='$val'");
+            }
+            $mdrugId = implode(",", $cineId);
+            $pquant = implode(",", $drquant);
+            DB::update("UPDATE `medications` SET `med_drugId`='$mdrugId',`presd_quant`= '$pquant',`updated_at`= now() WHERE drugId = '$drugId'");
+        }
         $quan = DB::table('medications')
-            ->join('treatments', 'medications.drugPatId', '=', 'treatments.TreatPatId')
+            ->join('treatments', 'medications.med_treatId', '=', 'treatments.treatmentId')
             ->where('medications.drugId', '=', $drugId)
             ->value('medications.presd_quant');
 
@@ -133,7 +162,7 @@ class medicationController extends Controller
         //$drug = DB::select("SELECT * FROM `medications` JOIN treatments JOIN register_pats ON medications.drugPatId =treatments.TreatPatId AND register_pats.PatientId = treatments.TreatPatId WHERE medications.drugId = '$drugId '");
 
         return view('drugs.edit', compact([
-            'edit_drug', 'drug', 'medicines', 'quan'
+            'edit_drug', 'drug', 'medicines', 'quan', 'combine'
         ]));
     }
 
@@ -169,29 +198,9 @@ class medicationController extends Controller
 
     public function update(Request $request, $drugId)
     {
-        $getdrugId = $request->input('med');
-        $drId = DB::table('medicines')
-            ->where('med_name', '=', $getdrugId)
-            ->value('med_id');
-        $medquant = DB::table('medicines')
-            ->where('med_name', '=', $getdrugId)
-            ->value('quantity');
-
-        $var = $request->input('quant');
-        $quan = $medquant - $var;
-
         $update_drug = Medication::find($drugId);
-        $update_drug->presd_quant = $var;
         $update_drug->drugEmpId = auth()->user()->id;
-        $update_drug->med_drugId = $drId;
         $update_drug->save();
-
-        $quant = DB::table('medications')
-            ->where('drugId', '=', $drugId)
-            ->value('presd_quant');
-        if ($quant != NULL){
-            DB::update("UPDATE `medicines` SET `quantity`='$quan' WHERE `med_id` ='$drId'");
-        }
 
         return redirect('drugs')->with('success', 'Update Complete');
 

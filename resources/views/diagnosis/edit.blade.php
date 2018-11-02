@@ -5,6 +5,13 @@
     <link rel="stylesheet" href="{{ asset('vendor/adminlte/css/auth.css') }}" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
     <!--script src="https://cdn.ckeditor.com/4.10.1/standard/ckeditor.js"></script-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!--script src="https://cdn.ckeditor.com/4.10.1/standard/ckeditor.js"></script-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
+    <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet"/>
     <style>
         * {
             box-sizing: border-box;
@@ -89,27 +96,49 @@
                     </span>
                 @endif
             </div>
-            <div style="width: 50%;" class="form-group has-feedback {{ $errors->has('test') ? 'has-error' : '' }}">
-                <b>TEST</b>
-                <select name="test" class="form-control" >
-                    <option value="{{ $getName }}">{{ $getName }}</option>
+            <div align="right" style="width: 50%;" class="form-group has-feedback {{ $errors->has('test[]') ? 'has-error' : '' }}">
+                <b>TEST</b><br />
+                @if($treatTestId != NULL && sizeof($getlab) != 0)
+                @foreach($testdata as $com)
+                    <label>{{ $com->testName }}</label>
+                    <input type="checkbox" name="test[]" @if(in_array($com->testName, $getlab)) {{ 'checked' }} @endif value="{{ $com->testName }}" /><br />
+                @endforeach
+                    @else
                     @foreach($testdata as $com)
-                        <option>{{ $com->testName }}</option>
+                        <label>{{ $com->testName }}</label>
+                        <input type="checkbox" name="test[]" value="{{ $com->testName }}" /><br />
                     @endforeach
-                </select>
-                @if ($errors->has('test'))
+                @endif
+                @if ($errors->has('test[]'))
                     <span class="help-block">
-                            <strong>{{ $errors->first('test') }}</strong>
+                            <strong>{{ $errors->first('test[]') }}</strong>
                         </span>
                 @endif
             </div>
-            <div class="form-group has-feedback {{ $errors->has('medicines') ? 'has-error' : '' }}">
-                <b>Drug Prescriptions</b>
-                {{Form::textarea('medicines', $edit_treat->m_prescription, ['class' => 'form-control', 'placeholder' => 'Medicines'])}}
-                @if ($errors->has('medicines'))
+            @if(count($medicines) > 0)
+                <div class="form-group has-feedback {{ $errors->has('med[]') ? 'has-error' : '' }} column">
+                    <b>DAWA</b>
+                    <select multiple name="med[]" class="form-control chosen-select" >
+                        <option value="">Medicines</option>
+                        @foreach($medicines as $com)
+                            <option value="{{ $com->med_name }}">{{ $com->med_name }}</option>
+                        @endforeach
+                    </select>
+                    @if ($errors->has('med[]'))
+                        <span class="help-block">
+                                <strong>{{ $errors->first('med[]') }}</strong>
+                            </span>
+                    @endif
+                </div>
+            @endif
+            <div class="form-group has-feedback {{ $errors->has('quant') ? 'has-error' : '' }} column">
+                <b>Quantity</b>
+
+                <input type="text" name="quant" class="form-control" placeholder="eg 1,2,3 - No spacing" multiple />
+                @if ($errors->has('quant'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('medicines') }}</strong>
-                    </span>
+                                <strong>{{ $errors->first('quant') }}</strong>
+                            </span>
                 @endif
             </div>
 
@@ -121,14 +150,10 @@
         <button type="submit" class="btn btn-primary"><b>SAVE</b></button>
     </div>
     {!! Form::close() !!}
-
     <script>
-        $(document).ready(function () {
-            $('#first_one').multiselect({
-                nonSelectedText:'Type Medicine Name',
-                buttonWidth:'80%'
-            });
-        });
+        $(".chosen-select").chosen({
+            no_results_text: "Oops, nothing found!"
+        })
     </script>
 
 @stop

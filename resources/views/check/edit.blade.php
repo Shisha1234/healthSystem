@@ -37,7 +37,7 @@
             <div class="column center">
                 <div class="form-group has-feedback">
                     <label>HEIGHT(In CM)</label>
-                    {{Form::number('height', $edit_check->height, ['class' => 'form-control', 'placeholder' => 'Height-meters'])}}
+                    {{Form::number('height', $edit_check->height, ['class' => 'form-control', 'placeholder' => 'Height-Centimeters'])}}
                 </div>
                 <div class="form-group has-feedback">
                     <label>WEIGHT (In Kg)</label>
@@ -56,7 +56,7 @@
                 </div>
                 <div class="form-group has-feedback">
                     <label>Blood Pressure</label>
-                    {{Form::text('bp', $edit_check->bPressure, ['class' => 'form-control', 'placeholder' => 'Blood Pressure '])}}
+                    {{Form::text('bp', $edit_check->bPressure, ['class' => 'form-control', 'placeholder' => 'eg 120/80 ', 'pattern' => '\b[0-9]{1,3}\/[0-9]{1,3}\b'])}}
                 </div>
             </div>
         </div>

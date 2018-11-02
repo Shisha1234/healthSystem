@@ -218,13 +218,8 @@ return [
         ],
         'PATIENT ACCOUNT',
         [
-            'text' => 'Active Patients',
+            'text' => 'Waiting Patients',
             'url'  => 'diagnosis',
-            'icon' => 'user',
-        ],
-        [
-            'text' => 'Pending Patients',
-            'url'  => 'diagnosis/pending',
             'icon' => 'user',
         ],
         [
@@ -258,8 +253,8 @@ return [
         ],
         'PATIENT ACCOUNT',
         [
-            'text' => 'Active Patients',
-            'url'  => 'diagnosis',
+            'text' => 'Waiting Patients',
+            'url'  => 'labResults',
             'icon' => 'user',
         ],
         [
@@ -284,18 +279,13 @@ return [
         ],
         'PATIENT ACCOUNT',
         [
-            'text' => 'Active Patients',
+            'text' => 'Waiting Patients',
             'url'  => 'drugs',
             'icon' => 'user',
         ],
         [
-            'text' => 'All Patients',
-            'url'  => 'drugs/show',
-            'icon' => 'user',
-        ],
-        [
             'text' => 'Cleared Patients',
-            'url'  => 'diagnosis/cleared',
+            'url'  => 'drugs/cleared',
             'icon' => 'user',
         ],
         [

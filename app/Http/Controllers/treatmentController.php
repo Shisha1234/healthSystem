@@ -39,15 +39,18 @@ class treatmentController extends Controller
             ])
             ->orderBy('treatments.updated_at', 'DESC')
             ->get();
+        //AND labresults.updated_at > '$date'  dont understand
         $date = date('Y-m-d');
         $getcount = DB::select("SELECT * FROM labresults JOIN treatments JOIN register_pats JOIN labtests 
-                    ON labresults.testPatId = treatments.TreatPatId 
+                    ON labresults.labTreatId = treatments.treatmentId 
                     AND labresults.testPatId = register_pats.PatientId 
-                    AND labresults.testId = labtests.testId WHERE labresults.tstatus = 1 
+                    AND labresults.testId = labtests.testId 
+                    WHERE labresults.tstatus = 1 
                     AND treatments.m_prescription IS NULL 
-                    AND labresults.updated_at > '$date' ORDER BY labresults.updated_at ASC");
+                    ORDER BY labresults.updated_at ASC");
+
         return view('diagnosis.index', compact([
-            'diagnosis', 'getcount'
+            'diagnosis', 'getcount', 'next'
         ]));
     }
 
@@ -106,35 +109,46 @@ class treatmentController extends Controller
             ->where('treatments.treatmentId', '=', $treatmentId)
             ->value('FullName');
 
+        $treatTestId = DB::table('treatments')
+            ->where('treatmentId', '=', $treatmentId)
+            ->value('Test_description');
+
         $edit_treat = treatment::find($treatmentId);
 
         $testdata = DB::select("SELECT * FROM labTests");
+
+        //$lab = DB::select("SELECT Test_description FROM `treatments` WHERE `treatmentId` ='$treatmentId'");
+        //$lab_array = implode(",", $lab);
+        if ($treatTestId != NULL) {
+            $lab = DB::select("SELECT Test_description FROM `treatments` WHERE `treatmentId` ='$treatmentId'");
+            foreach ($lab as $labbb) {
+                $labbl[] = $labbb->Test_description;
+                $labb = implode(",", $labbl);
+            }
+            $labtestId = DB::select("SELECT * FROM `labtests` WHERE `testId` IN ($labb)");
+            foreach ($labtestId as $vall) {
+                $getlab[] = $vall->testName;
+                //$sport = implode(",", $gettest);
+            }
+        }
+
         $date = date('Y-m-d');
         $getresult = DB::table('labresults')
-            ->join('treatments', 'labresults.testPatId', '=', 'treatments.TreatPatId')
+            ->join('treatments', 'labresults.labTreatId', '=', 'treatments.treatmentId')
             ->where([
                 ['treatments.treatmentId', '=', $treatmentId],
                 ['labresults.tstatus', '=', 1],
-                ['treatments.updated_at', '>', $date],
             ])
             ->value('testresults');
-
-        $getName = DB::table('labtests')
-            ->join('treatments', 'labtests.testId', '=', 'treatments.Test_description')
-            ->where([
-                ['treatments.treatmentId', '=', $treatmentId],
-            ])
-            ->whereDate('labtests.updated_at', '<',$date )
-            ->value('testName');
+        $medicines = DB::select('SELECT * FROM `medicines`');
 
         $getdata = DB::select("
         SELECT * FROM `treatments` JOIN register_pats JOIN labtests JOIN prechecks 
         ON register_pats.PatientId = treatments.TreatPatId AND labtests.testId = treatments.Test_description 
-        AND register_pats.PatientId = prechecks.chkPatId WHERE treatmentId = '$treatmentId' AND 
-        prechecks.updated_at > '$date'
+        AND treatments.treatCheckId = prechecks.checkId WHERE treatmentId = '$treatmentId'
         ");
         return view('diagnosis.edit', compact([
-            'edit_treat', 'getdata', 'getresult', 'name', 'getName', 'testdata'
+            'edit_treat', 'getdata', 'getresult', 'name', 'getName', 'testdata', 'getlab', 'treatTestId', 'medicines'
         ]));
     }
 
@@ -147,23 +161,47 @@ class treatmentController extends Controller
      */
     public function update(Request $request, $treatmentId)
     {
-        $testId = DB::table('labtests')
-            ->where('testName', '=', $request->input('test'))
-            ->value('testId');
         $prescription = DB::table('treatments')
             ->where('treatmentId', '=', $treatmentId)
             ->value('m_prescription');
+
+        $medNm = $request->input('med');
+        if ($medNm != NULL){
+        $quant = $request->input('quant');
+        $impmedNm = '"'.implode('","', $medNm).'"';
+        $medId = DB::select("SELECT * FROM `medicines` WHERE `med_name` IN($impmedNm)");
+        foreach ($medId as $mId){
+            $med[] = $mId->med_id;
+            $dawa = implode(",",$med);
+        } }
+        $testName = $request->input('test');
+        if ($testName != NULL){
+        $spot_test = '"'.implode('","', $testName).'"';
+        $sptest = explode(",", $spot_test);
+
+        $testId = DB::select("SELECT * FROM `labtests` WHERE `testName` IN ($spot_test)");
+            foreach ($testId as $val) {
+                $gettest[] = $val->testId;
+                $sport = implode(",", $gettest);
+            }}
+        //$spote = json_encode($gettest);
         $update_treat = treatment::find($treatmentId);
         $update_treat->D_description = $request->input('editor1');
-        $update_treat->Test_description = $testId;
-        $update_treat->m_prescription = $request->input('medicines');
+        if ($testName != NULL) {
+            $update_treat->Test_description = $sport;
+        }
+        if ($medNm != NULL) {
+            $update_treat->m_prescription = $dawa;
+        }if ($medNm != NULL) {
+        $update_treat->treatmedquant = $quant;
+    }
         $update_treat->docId = auth()->user()->id;
         if ($prescription != NULL){
             $update_treat->status = "closed";
         }
         $update_treat->save();
 
-        return redirect('diagnosis')->with('success', 'Update Complete');
+        return redirect('diagnosis')->with('Success', 'Update successful');
     }
 
     /**

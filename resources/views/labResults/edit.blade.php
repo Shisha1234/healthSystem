@@ -38,8 +38,14 @@
             {!! csrf_field() !!}
 
             <div class="form-group has-feedback {{ $errors->has('editor1') ? 'has-error' : '' }}">
+                <p align="left">
+                    <b><u>Test Required</u></b><br />
+                        @foreach($testdata as $com)
+                            <label>{{ $com->testName }}</label>
+                            <input type="checkbox" name="test[]" value="{{ $com->testName }}" /><br />
+                        @endforeach
+                </p>
                 <b>Test Results</b>
-
                 {{Form::textarea('editor1', $edit_result->testresults, ['class' => 'form-control', 'placeholder' => 'Lab Tests Results'])}}
                 <script>
                     CKEDITOR.replace( 'editor1' );

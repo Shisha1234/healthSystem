@@ -47,12 +47,12 @@
 
     @if(count($data) > 0)
         @foreach($data as $value)
-            <div class='box1' align="center" style="font-weight: bold; font-size: 1.1em">
+            <div class='box1' align="center" style="font-weight: bold; height: 2%; font-size: 1.1em">
                 Patient's Name: {{ $value->FullName }}<br />
-                {{ $value->testName }} Test<br/><br />
+                {{ $value->testName  }} Test<br/><br />
                 <b><u>Test Results</u></b><br />
-                {{ $value->testresults }}<br />
-                Tested Done By <i>{{ $value->name }}</i><br />
+                {!! $value->testresults !!}<br />
+                Test Done By <i>{{ $value->name }}</i><br />
             </div>
         @endforeach
     @endif

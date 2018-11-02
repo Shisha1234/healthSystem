@@ -24,7 +24,8 @@ class labResultsController extends Controller
             ->join('labtests', 'labresults.testId', '=', 'labtests.testId')
             ->join('users', 'labresults.labtechId', '=', 'users.id')
             ->join('register_pats', 'labresults.testPatId', '=', 'register_pats.PatientId')
-            ->paginate(8);
+            ->paginate(4);
+
         return view('labResults.summary', compact([
             'data'
         ]));
@@ -88,6 +89,19 @@ class labResultsController extends Controller
             ->join('labresults', 'register_pats.PatientId', '=', 'labresults.testPatId')
             ->where('resultId', '=', $resultId)
             ->value('FullName');
+        $testresults = DB::table('labresults')
+            ->where('resultId', '=', $resultId)
+            ->value('testresults');
+
+        $labdata = DB::select("SELECT testId FROM `labresults` WHERE `resultId` = '$resultId'");
+        foreach ($labdata as $lab){
+            $data[] = $lab->testId;
+            $strId = implode(",", $data);
+        }
+        $testdata = DB::select("SELECT * FROM `labtests` WHERE `testId` IN ($strId)");
+        foreach ($testdata as $test){
+            $testNm[] = $test->testName;
+        }
 
         $testName = DB::table('labtests')
             ->join('labresults', 'labtests.testId', '=', 'labresults.testId')
@@ -95,7 +109,7 @@ class labResultsController extends Controller
             ->value('testName');
 
         return view('labResults.edit', compact([
-            'edit_result', 'testName', 'patName'
+            'edit_result', 'testName', 'patName', 'labdata', 'testNm', 'testresults', 'testdata'
         ]));
 
     }

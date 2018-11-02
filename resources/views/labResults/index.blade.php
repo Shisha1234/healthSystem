@@ -1,22 +1,20 @@
 @extends('adminlte::page')
 @section('content')
-    <div class="container" style="margin-top: -4%">
+    <div class="container" style="margin-top: -4%" width="80%">
         <h1>LABORATORY</h1>
         <br />
         <div class="table-responsive col-lg-10">
             @if(count($labResults) > 0)
-                <table class="data-table" cellspacing="0" width="100%">
+                <table class="data-table" cellspacing="0" width="60%">
                     <thead>
                     <tr>
-                        <th>Lab Test Id</th>
                         <th>Patient Name</th>
-                        <th>Test Name</th>
+                        <th>Date</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($labResults as $item)
                         <tr>
-                            <td>{{$item->resultId}}</td>
                             <td>
                                 @if($item->tstatus !== 2)
                                     {{$item->FullName}}
@@ -28,7 +26,7 @@
 
                                 @endif
                             </td>
-                            <td>{{$item->testName}}</td>
+                            <td>{{$item->updated_at}}</td>
                         </tr>
                     @endforeach
                     </tbody>
