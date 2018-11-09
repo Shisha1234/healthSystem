@@ -10,6 +10,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>Quantity</th>
                         <th>Manufacturer</th>
                         <th>MF Date</th>
                         <th>Exp Date</th>
@@ -21,6 +22,7 @@
                         <tr>
                             <td>{{$item->med_id}}</td>
                             <td>{{$item->med_name}}</td>
+                            <td>{{$item->quantity}}</td>
                             <td>{{$item->manufacturedBy}}</td>
                             <td>{{$item->mfDate}}</td>
                             <td>{{$item->expiry_date}}</td>

@@ -44,33 +44,34 @@
                 @if($edit_drug = "closed")
                     <div style="font-weight: bold; font-size: 1.5em" align="left">
                         Drug Prescription:<br />
-                        <font size="2em">{!! $drug !!}</font>
                     </div>
                 @endif
             </div>
 
             @if(count($combine) > 0)
-                @foreach($combine as $key => $val)
-                <div class="form-group has-feedback {{ $errors->has('med') ? 'has-error' : '' }} column">
-                    <b>DAWA</b>
-                    <input type="text" name="med" value="{{ $val }}" class="form-control" placeholder="Medicine">
-                    @if ($errors->has('med'))
-                        <span class="help-block">
-                                <strong>{{ $errors->first('med') }}</strong>
-                            </span>
-                    @endif
-                </div>
-                <div class="form-group has-feedback {{ $errors->has('quant') ? 'has-error' : '' }} column">
-                    <b>Quantity</b>
-
-                    <input type="text" name="quant" value="{{ $key }}" class="form-control" placeholder="Quantity">
-                    @if ($errors->has('quant'))
-                        <span class="help-block">
-                                <strong>{{ $errors->first('quant') }}</strong>
-                            </span>
-                    @endif
-                </div>
-                @endforeach
+                <table class="data-table" cellspacing="0" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Dosage</th>
+                        <th>Quantity</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($combine4 as $dose => $key)
+                        <tr>
+                            <?php
+                            $newquant = DB::table('payments')->where([['F_tions_drugId', '=', $drugId],['paydrugId', '=', $key],])->value('payquant');
+                            $mednm = DB::table('medicines')->where('med_id', '=', $key)->value('med_name');
+                            $pack = DB::table('medicines')->where('med_id', '=', $key)->value('packaging');
+                            ?>
+                            <td>{{ $mednm }}</td>
+                            <td>{{ $dose }}</td>
+                            <td>{{ $newquant .' '. $pack }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
             @endif
         </div>
         <!-- /.form-box -->

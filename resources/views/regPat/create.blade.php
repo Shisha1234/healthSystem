@@ -45,8 +45,8 @@
                         @endif
                     </div>
                     <div class="form-group has-feedback {{ $errors->has('idNo') ? 'has-error' : '' }}">
-                        <b>ID Number</b>
-                        <input type="number" name="idNo" placeholder="ID number" value="{{ old('idNo') }}" class="form-control">
+                        <b>ID or Birth Certificate Number</b>
+                        <input type="text" name="idNo" placeholder="ID or Birth Certificate Number" value="{{ old('idNo') }}" class="form-control">
                         @if ($errors->has('idNo'))
                             <span class="help-block">
                             <strong>{{ $errors->first('idNo') }}</strong>
@@ -62,19 +62,9 @@
                         </span>
                         @endif
                     </div>
-                    <div class="form-group has-feedback {{ $errors->has('iname') ? 'has-error' : '' }}">
-                        <?php
-                        $y = date('Y');
-                        $n = date('Y') - 18;
-                        $l= $n - 60;
-                        ?>
-                        <b>Year of Birth</b><br />
-                            <select name = year class="form-control">
-                                <option>---Year Of Birth--</option>
-                                @for($x = $n; $x >= $l; $x--)
-                                    <option>{{ $x }}</option>
-                                @endfor
-                            </select>
+                    <div class="form-group has-feedback {{ $errors->has('year') ? 'has-error' : '' }}">
+                        <b>Date of Birth</b><br />
+                        <input type="date" name="year" class="form-control" placeholder="Date">
                         @if ($errors->has('year'))
                             <span class="help-block">
                             <strong>{{ $errors->first('year') }}</strong>

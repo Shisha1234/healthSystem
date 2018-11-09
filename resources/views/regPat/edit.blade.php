@@ -39,10 +39,13 @@
                     {{Form::text('name', $edit_user->FullName, ['class' => 'form-control', 'placeholder' => 'NAME'])}}
                 </div>
                 <div class="form-group has-feedback">
-                    {{Form::number('num', $edit_user->idNo, ['class' => 'form-control', 'placeholder' => 'ID number'])}}
+                    {{Form::text('num', $edit_user->idNo, ['class' => 'form-control', 'placeholder' => 'ID number'])}}
                 </div>
                 <div class="form-group has-feedback">
                     {{Form::number('tele', $edit_user->Tel, ['class' => 'form-control'])}}
+                </div>
+                <div class="form-group has-feedback">
+                    {{Form::text('yobb', $edit_user->yob, ['class' => 'form-control'])}}
                 </div>
                 <div class="form-group has-feedback">
                     {{Form::text('place', $edit_user->place, ['class' => 'form-control', 'placeholder' => 'Residence '])}}

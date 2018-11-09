@@ -66,17 +66,28 @@ class medicationController extends Controller
              ->where('payments.F_tions_drugId', '=', $paymentId)
              ->value('FullName');
          $payment = DB::select("
-        SELECT * FROM `payments` JOIN medicines JOIN register_pats 
+        SELECT * FROM `payments` JOIN medicines JOIN register_pats JOIN treatments
          JOIN medications ON payments.paydrugId = medicines.med_id 
          AND payments.F_tions_drugId = medications.drugId
+         AND medications.med_treatId = treatments.treatmentId
          AND payments.payPatId = register_pats.PatientId WHERE payments.F_tions_drugId = '$paymentId'
          ");
 
-         return view('drugs.payments.payment')
-             ->with('paymentId', $paymentId)
-             ->with('total', $total)
-             ->with('Fnm', $Fnm)
-             ->with('payment', $payment);
+         foreach ($payment as $payd){
+             $ds = $payd->dosage;
+             $drgg = $payd->m_prescription;
+         }
+         $nn = DB::select("SELECT * FROM `medicines` WHERE med_id IN ($drgg)");
+         foreach ($nn as $nmedo){
+             $cineId[] = $nmedo->med_id;
+         }
+         $dos = explode(",",$ds );
+         $dosage = explode(",",$ds );
+         $mcombines = array_combine($cineId, $dosage);
+
+         return view('drugs.payments.payment', compact([
+             'paymentId', 'total', 'ds', 'Fnm', 'payment', 'drgg', 'mcombines', 'paymentId'
+         ]));
      }
 
     /**
@@ -142,6 +153,10 @@ class medicationController extends Controller
             ->join('treatments', 'medications.med_treatId', '=', 'treatments.treatmentId')
             ->where('medications.drugId', '=', $drugId)
             ->value('treatments.m_prescription');
+        $dose = DB::table('medications')
+            ->join('treatments', 'medications.med_treatId', '=', 'treatments.treatmentId')
+            ->where('medications.drugId', '=', $drugId)
+            ->value('treatments.dosage');
         $dquant = DB::table('medications')
             ->join('treatments', 'medications.med_treatId', '=', 'treatments.treatmentId')
             ->where('medications.drugId', '=', $drugId)
@@ -151,6 +166,7 @@ class medicationController extends Controller
             ->value('med_drugId');
 
         $drquant = explode(",",$dquant );
+        $dosage = explode(",",$dose );
         $user = auth()->user()->id;
         $med = DB::select("SELECT * FROM `medicines` WHERE med_id IN ($drug)");
         foreach ($med as $medo){
@@ -158,6 +174,7 @@ class medicationController extends Controller
             $cineId[] = $medo->med_id;
         }
         $combine = array_combine($drquant, $cine);
+        $combine4 = array_combine($dosage, $cineId);
         if ($med_drugId === NULL) {
         $combine2 = array_combine($drquant, $cineId);
         //$comIdquan = array_combine();
@@ -182,7 +199,7 @@ class medicationController extends Controller
         //$drug = DB::select("SELECT * FROM `medications` JOIN treatments JOIN register_pats ON medications.drugPatId =treatments.TreatPatId AND register_pats.PatientId = treatments.TreatPatId WHERE medications.drugId = '$drugId '");
 
         return view('drugs.edit', compact([
-            'edit_drug', 'drug', 'medicines', 'quan', 'combine'
+            'edit_drug', 'drug', 'medicines', 'quan', 'combine', 'combine4', 'drugId'
         ]));
     }
 

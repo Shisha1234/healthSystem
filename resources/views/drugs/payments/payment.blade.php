@@ -6,28 +6,41 @@
 
     {!! Form::open(['action' => ['medicationController@processpay', $paymentId], 'method' => 'POST']) !!}
     <div class="container" align="center">
-        <div class="row" style="width: 60%; margin-top:-2%; height: auto; background-color: #e3e8ef;">
+        <div class="row" style="width: 80%; margin-top:-2%; height: auto; background-color: #e3e8ef;">
 
             {!! csrf_field() !!}
-
             @if(count($payment) > 0)
+                <div>
+                    <p onclick="myFunction()">!</p>
+
+                    <script>
+                        function myFunction() {
+                            window.print();
+                        }
+                    </script>
+                </div>
                 <table cellspacing="0" :border="2px" width="60%">
                     <p style="font-weight: bold; font-size: 1.5em">Patient's Name: {{ $Fnm }}</p>
                     <thead>
                     <tr>
-                        <th>Quantity</th>
+                        <th>Dosage</th>
                         <th>Medicine Name</th>
                         <th>Price(ksh)</th>
                         <th>Amount</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($payment as $pay)
+                    @foreach($mcombines as $kads=>$ads)
                         <tr>
-                            <td>{{ $pay->payquant }}</td>
-                            <td>{{ $pay->med_name }}</td>
-                            <td>{{ $pay->price }}</td>
-                            <td>{{ $pay->totalAmt }}</td>
+                            <?php
+                            $mednm = DB::table('medicines')->where('med_id', '=', $kads)->value('med_name');
+                            $mm = DB::table('medicines')->where('med_id', '=', $kads)->value('price');
+                            $nt = DB::table('payments')->where([['F_tions_drugId', '=', $paymentId],['paydrugId', '=', $kads],])->value('totalAmt');
+                            ?>
+                            <td>{{ $ads }}</td>
+                            <td>{{ $mednm }}</td>
+                            <td>{{$mm}}</td>
+                            <td>{{$nt}}</td>
                         </tr>
                     @endforeach
                     </tbody>

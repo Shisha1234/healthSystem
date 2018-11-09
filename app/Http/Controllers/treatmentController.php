@@ -143,8 +143,8 @@ class treatmentController extends Controller
         $medicines = DB::select('SELECT * FROM `medicines`');
 
         $getdata = DB::select("
-        SELECT * FROM `treatments` JOIN register_pats JOIN labtests JOIN prechecks 
-        ON register_pats.PatientId = treatments.TreatPatId AND labtests.testId = treatments.Test_description 
+        SELECT * FROM `treatments` JOIN register_pats JOIN prechecks 
+        ON register_pats.PatientId = treatments.TreatPatId 
         AND treatments.treatCheckId = prechecks.checkId WHERE treatmentId = '$treatmentId'
         ");
         return view('diagnosis.edit', compact([
@@ -187,6 +187,7 @@ class treatmentController extends Controller
         //$spote = json_encode($gettest);
         $update_treat = treatment::find($treatmentId);
         $update_treat->D_description = $request->input('editor1');
+        $update_treat->docNotes = $request->input('notes');
         if ($testName != NULL) {
             $update_treat->Test_description = $sport;
         }
@@ -194,6 +195,7 @@ class treatmentController extends Controller
             $update_treat->m_prescription = $dawa;
         }if ($medNm != NULL) {
         $update_treat->treatmedquant = $quant;
+        $update_treat->dosage = $request->input('dose');
     }
         $update_treat->docId = auth()->user()->id;
         if ($prescription != NULL){

@@ -96,7 +96,7 @@
                     </span>
                 @endif
             </div>
-            <div align="right" style="width: 50%;" class="form-group has-feedback {{ $errors->has('test[]') ? 'has-error' : '' }}">
+            <div align="right" style="width: 50%;" class="form-group has-feedback {{ $errors->has('test[]') ? 'has-error' : '' }} column">
                 <b>TEST</b><br />
                 @if($treatTestId != NULL && sizeof($getlab) != 0)
                 @foreach($testdata as $com)
@@ -134,12 +134,35 @@
             <div class="form-group has-feedback {{ $errors->has('quant') ? 'has-error' : '' }} column">
                 <b>Quantity</b>
 
-                <input type="text" name="quant" class="form-control" placeholder="eg 1,2,3 - No spacing" multiple />
+                <input type="text" name="quant" value="{{ $edit_treat->treatmedquant }}" class="form-control" placeholder="eg 1,2,3 - No spacing" multiple />
                 @if ($errors->has('quant'))
                     <span class="help-block">
                                 <strong>{{ $errors->first('quant') }}</strong>
                             </span>
                 @endif
+            </div>
+            <div class="form-group has-feedback {{ $errors->has('notes') ? 'has-error' : '' }} column">
+                <b>Doctor's Short Notes</b>
+
+                <textarea name="notes" class="form-control" placeholder="Short description" >
+                    {{ $edit_treat->docNotes }}
+                @if ($errors->has('notes'))
+                        <span class="help-block">
+                        <strong>{{ $errors->first('notes') }}</strong>
+                    </span>
+                    @endif
+                </textarea>
+            </div>
+            <div class="form-group has-feedback {{ $errors->has('dose') ? 'has-error' : '' }} column">
+                <b>Dosage</b>
+
+                <textarea name="dose" class="form-control" placeholder="eg 3teaspoon daily, 2*3 tablets weekly" >{{ $edit_treat->dosage }}
+                @if ($errors->has('dose'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first('dose') }}</strong>
+                    </span>
+                @endif
+                </textarea>
             </div>
 
         </div>

@@ -3,6 +3,11 @@
     <div class="container">
         <h1>PATIENTS</h1>
         <p><a href="{{ route('regCreate') }}">New Patient</a> </p>
+        @if(auth()->user()->role = "admin")
+            <p><a href="{{ "labResults/summary" }}">Lab Reports</a> </p>
+            <p><a href="{{ "check/summary" }}">Check up Reports</a> </p>
+            <p><a href="{{ "dawa" }}">Drugs</a> </p>
+        @endif
         <br />
         <div class="table-responsive col-lg-10">
             @if(count($regPat) > 0)

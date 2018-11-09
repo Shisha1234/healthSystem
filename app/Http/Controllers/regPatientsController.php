@@ -45,7 +45,7 @@ class regPatientsController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'idNo' => 'required|unique:register_pats|min:7|max:8',
+            'idNo' => 'required|unique:register_pats',
             'Tel' => 'required|unique:register_pats|min:9|max:10',
             'place' => 'required',
             'gender' => 'required',
@@ -108,13 +108,17 @@ class regPatientsController extends Controller
         $changepat->treat_status = 1;
         $changepat->save();
 
-        DB::insert("
+        $one = DB::table('register_pats')->join('prechecks', 'register_pats.PatientId', '=', 'prechecks.chkPatId')
+            ->where([['prechecks.chkstatus', '=', 1], ['register_pats.PatientId', '=', $PatientId]])->value('prechecks.chkstatus');
+        if ($one != 1) {
+            DB::insert("
         INSERT INTO prechecks(`chkPatId`, `created_at`, `updated_at`) VALUES('$PatientId', now(), now())
         ");
 
-        DB::insert("
+            DB::insert("
         INSERT INTO treatments(`TreatPatId`, `created_at`, `updated_at`) VALUES('$PatientId', now(), now());
         ");
+        }
 
         return redirect('regPat')->with('success', 'Update Complete');
     }
@@ -125,6 +129,7 @@ class regPatientsController extends Controller
         $update_user->FullName = $request->input('name');
         $update_user->idNo = $request->input('num');
         $update_user->Tel = $request->input('tele');
+        $update_user->yob = $request->input('yobb');
         $update_user->place = $request->input('place');
         $update_user->gender = $request->input('gender');
         $update_user->mStatus = $request->input('status');
